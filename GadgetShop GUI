@@ -1,0 +1,283 @@
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+import javafx.scene.media.AudioClip;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
+
+import java.util.ArrayList;
+
+public class GadgetShopGUI extends Application {
+
+    private TextArea logArea = new TextArea();
+    private ArrayList<Gadget> gadgets = new ArrayList<>();
+
+    private Phone currentPhone = null;
+    private MP3Player currentMP3 = null;
+    private AudioClip ringtone;
+
+    @Override
+    public void start(Stage stage) {
+
+        Pane root = new Pane();
+
+        // This is Safe Audio Loading
+        try {
+            var url = getClass().getResource("/sounds/");
+            if (url != null) {
+                ringtone = new AudioClip(url.toExternalForm());
+            } else {
+                System.out.println("Ringtone file not found (GUI still works)");
+            }
+        } catch (Exception e) {
+            System.out.println("Audio failed to load (ignored)");
+        }
+
+        // Background colour for the GUI
+        root.setStyle("-fx-background-color: pink;");
+
+        // This is for the Phone area
+        Label phoneLabel = new Label("PHONE");
+        phoneLabel.setLayoutX(175);
+        phoneLabel.setLayoutY(20);
+        phoneLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
+
+        TextField modelField = new TextField();
+        modelField.setLayoutX(125); 
+        modelField.setLayoutY(60);
+        modelField.setPromptText("Model");
+
+        TextField priceField = new TextField();
+        priceField.setLayoutX(125); 
+        priceField.setLayoutY(100);
+        priceField.setPromptText("Price");
+
+        TextField creditField = new TextField();
+        creditField.setLayoutX(125); 
+        creditField.setLayoutY(140);
+        creditField.setPromptText("Credit");
+
+        TextField phoneField = new TextField();
+        phoneField.setLayoutX(125); 
+        phoneField.setLayoutY(180);
+        phoneField.setPromptText("Phone Number");
+
+        TextField durationField = new TextField();
+        durationField.setLayoutX(125); 
+        durationField.setLayoutY(220);
+        durationField.setPromptText("Minutes");
+
+        Button addPhone = new Button("Add Phone");
+        addPhone.setLayoutX(120); 
+        addPhone.setLayoutY(270);
+        addPhone.setStyle("-fx-background-color: lightgreen;");
+
+        Button callButton = new Button("Make Call");
+        callButton.setLayoutX(220); 
+        callButton.setLayoutY(270);
+        callButton.setStyle("-fx-background-color: lightgreen;");
+
+        // This is for MP3 area
+        Label mp3Label = new Label("MP3 PLAYER");
+        mp3Label.setLayoutX(520);
+        mp3Label.setLayoutY(20);
+        mp3Label.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
+
+        TextField mp3Model = new TextField();
+        mp3Model.setLayoutX(500); 
+        mp3Model.setLayoutY(60);
+        mp3Model.setPromptText("MP3 Model");
+
+        TextField memoryField = new TextField();
+        memoryField.setLayoutX(500); 
+        memoryField.setLayoutY(100);
+        memoryField.setPromptText("Memory");
+
+        TextField downloadField = new TextField();
+        downloadField.setLayoutX(500); 
+        downloadField.setLayoutY(140);
+        downloadField.setPromptText("Download File");
+
+        TextField priceMP3Field = new TextField();
+        priceMP3Field.setLayoutX(500); 
+        priceMP3Field.setLayoutY(180);
+        priceMP3Field.setPromptText("Price");
+
+        TextField weightField = new TextField();
+        weightField.setLayoutX(500); 
+        weightField.setLayoutY(220);
+        weightField.setPromptText("Weight");
+
+        Button addMP3 = new Button("Add MP3");
+        addMP3.setLayoutX(490); 
+        addMP3.setLayoutY(270);
+        addMP3.setStyle("-fx-background-color: lightgreen;");
+
+        Button downloadButton = new Button("Download File");
+        downloadButton.setLayoutX(570); 
+        downloadButton.setLayoutY(270);
+        downloadButton.setStyle("-fx-background-color: lightgreen;");
+
+        // This is for CLEARing the text fields for all items.
+        Button clearButton = new Button("Clear All");
+        clearButton.setLayoutX(350);
+        clearButton.setLayoutY(320);
+        clearButton.setStyle("-fx-font-weight: bold; -fx-background-color: lightgreen;");
+
+        // This is for LOG AREA where valves are being displayed
+        logArea.setLayoutX(40);
+        logArea.setLayoutY(400);
+        logArea.setPrefSize(700, 150);
+        logArea.setStyle(
+            "-fx-control-inner-background: black;" +
+            "-fx-text-fill: #00ff00;" +
+            "-fx-font-size: 14px;"
+        );
+
+        // The PHONE code
+        addPhone.setOnAction(e -> {
+                    try {
+                        Phone phone = new Phone(
+                                modelField.getText(),
+                                Double.parseDouble(priceField.getText()),
+                                0.2,
+                                "Medium",
+                                Double.parseDouble(creditField.getText()),
+                                phoneField.getText()
+                            );
+
+                        gadgets.add(phone);
+                        currentPhone = phone;
+
+                        // Displaying phone details
+                        logArea.appendText("Phone Added\n");
+                        logArea.appendText(phone.displayGadget() + "\n\n");
+
+                    } catch (Exception ex) {
+                        logArea.appendText("Error, Please Add phone to Continue!\n");
+                    }
+            });
+
+        // ===== CALL ACTION (WITH SOUND) =====
+        callButton.setOnAction(e -> {
+
+                    if (currentPhone == null) {
+                        logArea.appendText("No phone available\n");
+                        return;
+                    }
+
+                    try {
+                        int duration = Integer.parseInt(durationField.getText());
+
+                        // 🔊 SAFE RINGTONE
+                        if (ringtone != null) {
+                            ringtone.play();
+
+                            PauseTransition pause = new PauseTransition(Duration.seconds(3));
+                            pause.setOnFinished(ev -> ringtone.stop());
+                            pause.play();
+                        }
+
+                        String result = currentPhone.makeCall(phoneField.getText(), duration);
+                        logArea.appendText(result + "\n");
+
+                    } catch (Exception ex) {
+                        logArea.appendText("Invalid call input\n");
+                    }
+            });
+
+        // ===== MP3 ACTION =====
+        addMP3.setOnAction(e -> {
+                    try {
+                        MP3Player mp3 = new MP3Player(
+                                mp3Model.getText(),
+                                200,
+                                0.1,
+                                "Small",
+                                "MP3-" + mp3Model.getText(),
+                                Integer.parseInt(memoryField.getText())
+                            );
+
+                        gadgets.add(mp3);
+                        currentMP3 = mp3;
+                        // Here the Displaying of MP3 Player gadgets will be viewed
+
+                        logArea.appendText("MP3 Added\n");
+                        logArea.appendText(mp3.displayGadget() + "\n\n");
+
+                    } catch (Exception ex) {
+                        logArea.appendText("Error adding MP3\n");
+                    }
+            });
+
+        downloadButton.setOnAction(e -> {
+                    // this checks if MP3 exists
+                    if (currentMP3 == null) {
+                        logArea.appendText("No MP3 Player available\n");
+                        return;
+                    }
+
+                    try {
+
+                        // Get the download file from the text field
+                        int size = Integer.parseInt(downloadField.getText());
+
+                        //call download method from MP3Player class
+                        String result = currentMP3.download(size);
+
+                        //This will display the results 
+
+                        logArea.appendText(result + "\n\n");
+
+                    } catch (NumberFormatException ex) {
+                        logArea.appendText("Invalid download size\n");
+                    } catch (Exception ex) {
+                        logArea.appendText("Error downloading file\n");
+                    }
+            });
+            
+        // ===== CLEAR =====
+        clearButton.setOnAction(e -> {
+                    modelField.clear();
+                    priceField.clear();
+                    creditField.clear();
+                    phoneField.clear();
+                    durationField.clear();
+
+                    mp3Model.clear();
+                    memoryField.clear();
+                    downloadField.clear();
+                    priceMP3Field.clear();
+                    weightField.clear();
+
+                    logArea.clear();
+
+                    currentMP3 = null;
+                    currentPhone = null;
+
+                    logArea.appendText("All cleared\n");
+            });
+
+        // ===== ADD TO SCREEN =====
+        root.getChildren().addAll(
+            phoneLabel, modelField, priceField, creditField, phoneField, durationField,
+            addPhone, callButton,
+
+            mp3Label, mp3Model, memoryField, downloadField, priceMP3Field, weightField,
+            addMP3, downloadButton,
+
+            clearButton,
+            logArea
+        );
+
+        stage.setScene(new Scene(root, 800, 600));
+        stage.setTitle("Gadget Shop");
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch();
+    }
+}
