@@ -1,0 +1,44 @@
+public class Phone extends Gadget {
+
+    private double credit;
+    private String phoneNumber;
+
+    public Phone(String model, double price, double weight, String size,
+                 double credit, String phoneNumber) {
+        super(model, price, weight, size);
+        this.credit = credit;
+        this.phoneNumber = phoneNumber;
+    }
+
+    @Override
+    public String displayGadget() {
+        return super.displayGadget() +
+               "\nCredit: £" + credit +
+               "\nPhone Number: " + phoneNumber;
+    }
+
+    public String makeCall(String number, int duration) {
+        double costPerMinute = 0.5;
+
+        if (number == null || number.trim().isEmpty()) {
+            return "Error: Invalid number";
+        }
+
+        if (duration <= 0) {
+            return "Error: Invalid duration";
+        }
+
+        double cost = duration * costPerMinute;
+
+        if (cost > credit) {
+            return "Error: Not enough credit";
+        }
+
+        credit -= cost;
+
+        return "Calling " + number +
+               "\nDuration: " + duration +
+               "\nCost: £" + cost +
+               "\nRemaining: £" + credit;
+    }
+}
