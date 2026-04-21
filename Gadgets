@@ -1,0 +1,21 @@
+public class Gadget {
+
+    private String model;
+    private double price;
+    private double weight;
+    private String size;
+
+    public Gadget(String model, double price, double weight, String size) {
+        this.model = model;
+        this.price = price;
+        this.weight = weight;
+        this.size = size;
+    }
+
+    public String displayGadget() {
+        return "Model: " + model +
+               "\nPrice: £" + price +
+               "\nWeight: " + weight + " kg" +
+               "\nSize: " + size;
+    }
+}
