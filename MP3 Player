@@ -1,0 +1,37 @@
+public class MP3Player extends Gadget {
+
+    private String id;
+    private int memory;
+
+    public MP3Player(String model, double price, double weight,
+                     String size, String id, int memory) {
+        super(model, price, weight, size);
+        this.id = id;
+        this.memory = memory;
+    }
+
+    @Override
+    public String displayGadget() {
+        return super.displayGadget() +
+               "\nID: " + id +
+               "\nMemory: " + memory + " MB";
+    }
+
+    public String download(int size) {
+        if (size <= 0) return "Invalid download size";
+
+        if (size > memory) {
+            return "Not enough memory";
+        }
+
+        memory -= size;
+        return "Downloaded " + size + "MB\nRemaining: " + memory + "MB";
+    }
+
+    public String delete(int size) {
+        if (size <= 0) return "Invalid delete size";
+
+        memory += size;
+        return "Deleted " + size + "MB\nAvailable: " + memory + "MB";
+    }
+}
