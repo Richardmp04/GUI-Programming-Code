@@ -6,6 +6,7 @@ import javafx.stage.Stage;
 import javafx.scene.media.AudioClip;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
+import java.time.LocalTime;
 
 import java.util.ArrayList;
 
@@ -13,6 +14,7 @@ public class GadgetShopGUI extends Application {
 
     private TextArea logArea = new TextArea();
     private ArrayList<Gadget> gadgets = new ArrayList<>();
+
 
     private Phone currentPhone = null;
     private MP3Player currentMP3 = null;
@@ -31,12 +33,13 @@ public class GadgetShopGUI extends Application {
             } else {
                 System.out.println("Ringtone file not found (GUI still works)");
             }
+            
         } catch (Exception e) {
             System.out.println("Audio failed to load (ignored)");
         }
 
         // Background colour for the GUI
-        root.setStyle("-fx-background-color: pink;");
+        root.setStyle("-fx-background-color: Skyblue;");
 
         // This is for the Phone area
         Label phoneLabel = new Label("PHONE");
@@ -120,6 +123,18 @@ public class GadgetShopGUI extends Application {
         downloadButton.setLayoutY(270);
         downloadButton.setStyle("-fx-background-color: lightgreen;");
 
+        // This is for the Search field
+        TextField searchField = new TextField();
+        searchField.setLayoutX(320);
+        searchField.setLayoutY(200);
+        searchField.setPromptText("Search model...");
+        searchField.setStyle("-fx-font-color: black; -fx-font-size: 12px;");
+        searchField.setStyle("-fx-background-color: white;");
+
+        Button searchButton = new Button("Search");
+        searchButton.setLayoutX(365);
+        searchButton.setLayoutY(240);
+
         // This is for CLEARing the text fields for all items.
         Button clearButton = new Button("Clear All");
         clearButton.setLayoutX(350);
@@ -129,12 +144,16 @@ public class GadgetShopGUI extends Application {
         // This is for LOG AREA where valves are being displayed
         logArea.setLayoutX(40);
         logArea.setLayoutY(400);
-        logArea.setPrefSize(700, 150);
+        logArea.setPrefSize(700, 300);
         logArea.setStyle(
             "-fx-control-inner-background: black;" +
             "-fx-text-fill: #00ff00;" +
             "-fx-font-size: 14px;"
         );
+
+        // This is for the Log time 
+        Runnable logTime = () -> logArea.appendText("[" + LocalTime.now().withNano(0) + "] ");
+
 
         // The PHONE code
         addPhone.setOnAction(e -> {
@@ -150,13 +169,17 @@ public class GadgetShopGUI extends Application {
 
                         gadgets.add(phone);
                         currentPhone = phone;
+                        callButton.setDisable(false);
+
+
+                        logTime.run();
 
                         // Displaying phone details
                         logArea.appendText("Phone Added\n");
                         logArea.appendText(phone.displayGadget() + "\n\n");
 
                     } catch (Exception ex) {
-                        logArea.appendText("Error, Please Add phone to Continue!\n");
+                        logArea.appendText("Error, Please add all phone details to Continue!\n");
                     }
             });
 
@@ -202,16 +225,20 @@ public class GadgetShopGUI extends Application {
 
                         gadgets.add(mp3);
                         currentMP3 = mp3;
+                        downloadButton.setDisable(false);
+
+
+                        logTime.run();
                         // Here the Displaying of MP3 Player gadgets will be viewed
 
                         logArea.appendText("MP3 Added\n");
                         logArea.appendText(mp3.displayGadget() + "\n\n");
 
                     } catch (Exception ex) {
-                        logArea.appendText("Error adding MP3\n");
+                        logArea.appendText("Error, please fill all details required  for MP3\n");
                     }
             });
-
+        // The download Button is created here
         downloadButton.setOnAction(e -> {
                     // this checks if MP3 exists
                     if (currentMP3 == null) {
@@ -237,7 +264,19 @@ public class GadgetShopGUI extends Application {
                         logArea.appendText("Error downloading file\n");
                     }
             });
-            
+
+        //Search box
+        searchButton.setOnAction(e -> {
+                    String search = searchField.getText().toLowerCase();
+                    for (Gadget g : gadgets) {
+                        if (g.displayGadget().toLowerCase().contains(search)) {
+                            logArea.appendText("Found:\n" + g.displayGadget() + "\n");
+                            return;
+                        }
+                    }
+                    logArea.appendText("Not found\n");
+            });
+
         // ===== CLEAR =====
         clearButton.setOnAction(e -> {
                     modelField.clear();
@@ -267,7 +306,7 @@ public class GadgetShopGUI extends Application {
 
             mp3Label, mp3Model, memoryField, downloadField, priceMP3Field, weightField,
             addMP3, downloadButton,
-
+            searchField, searchButton,
             clearButton,
             logArea
         );
